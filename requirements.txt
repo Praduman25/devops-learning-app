@@ -10,9 +10,12 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 packaging==26.2
 pluggy==1.6.0
+prometheus_client==0.25.0
+prometheus_flask_exporter==0.23.2
 psycopg2-binary==2.9.12
 Pygments==2.20.0
 pytest==9.1.1
+python-json-logger==4.1.0
 SQLAlchemy==2.0.51
 typing_extensions==4.15.0
 Werkzeug==3.1.8

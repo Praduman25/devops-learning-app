@@ -1,6 +1,16 @@
 import os
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from prometheus_flask_exporter import PrometheusMetrics
+import logging
+from pythonjsonlogger import jsonlogger
+
+logger = logging.getLogger("devops-app")
+logHandler = logging.StreamHandler()
+formatter = jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(message)s")
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+logger.setLevel(logging.INFO)
 
 db = SQLAlchemy()
 
@@ -10,7 +20,10 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
 
 def create_app():
+    
     app = Flask(__name__)
+    metrics = PrometheusMetrics(app)
+    
 
     DB_USER = os.environ.get("DB_USER", "postgres")
     DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
@@ -41,6 +54,7 @@ def create_app():
         new_task = Task(title=data["title"])
         db.session.add(new_task)
         db.session.commit()
+        logger.info("Task created", extra={"task_id": new_task.id, "title": new_task.title})
         return jsonify({"id": new_task.id, "title": new_task.title}), 201
 
     with app.app_context():
@@ -51,4 +65,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=False, use_reloader=False)
